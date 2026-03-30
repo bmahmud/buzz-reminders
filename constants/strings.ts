@@ -1,0 +1,45 @@
+export const STRINGS = {
+  appName: 'Buzz Reminders',
+  tabs: {
+    today: 'Today',
+    upcoming: 'Upcoming',
+    habits: 'Habits',
+    all: 'All',
+    settings: 'Settings',
+  },
+  actions: {
+    complete: 'Complete',
+    snooze: 'Snooze',
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    dismiss: 'Dismiss',
+    newReminder: 'New reminder',
+  },
+  empty: {
+    today: 'No reminders due today.',
+    upcoming: 'Nothing coming up.',
+    habits: 'No habit reminders yet.',
+    all: 'No reminders yet.',
+  },
+  onboarding: {
+    title: 'Stay on track',
+    subtitle: 'Allow notifications so Buzz can alert you at the right time.',
+    enable: 'Enable notifications',
+    skip: 'Maybe later',
+  },
+  settings: {
+    notifications: 'Notifications',
+    resetOnboarding: 'Show onboarding again',
+  },
+  reminder: {
+    titleLabel: 'Title',
+    typeLabel: 'Type',
+    priorityLabel: 'Priority',
+    dateTimeLabel: 'Date & time',
+    recurrenceLabel: 'Recurrence',
+    alertLabel: 'Alert mode',
+    notesLabel: 'Notes',
+  },
+} as const;
