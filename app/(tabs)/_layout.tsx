@@ -23,10 +23,10 @@ export default function TabsLayout() {
         headerShadowVisible: false,
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
-          borderTopColor: '#E9DFFB',
+          borderTopColor: '#BAE6FD',
         },
         tabBarActiveTintColor: THEME.accent,
-        tabBarInactiveTintColor: '#8E7AB8',
+        tabBarInactiveTintColor: '#64748B',
       }}
     >
       <Tabs.Screen

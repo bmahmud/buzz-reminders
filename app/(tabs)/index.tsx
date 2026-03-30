@@ -30,7 +30,7 @@ export default function TodayScreen() {
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>My Reminders</Text>
+            <Text style={styles.title}>{STRINGS.appName}</Text>
             <Text style={styles.subtitle}>Stay organized and never miss a thing</Text>
             <View style={styles.statsRow}>
               <View style={styles.statCard}>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    color: '#F1EAFE',
+    color: '#E0F2FE',
     textAlign: 'center',
     marginTop: 6,
     marginBottom: 14,
@@ -156,10 +156,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     color: THEME.textPrimary,
-    backgroundColor: '#FBFAFE',
+    backgroundColor: THEME.surface,
   },
   addButton: {
-    backgroundColor: '#9C75F9',
+    backgroundColor: THEME.accent,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 11,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginTop: 14,
     marginBottom: 8,
-    color: '#5F478A',
+    color: '#075985',
     fontSize: 12,
     fontWeight: '700',
   },

@@ -23,7 +23,13 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="reminder/new"
-            options={{ presentation: 'modal', title: 'New reminder' }}
+            options={{
+              presentation: 'modal',
+              title: 'New reminder',
+              headerTitleStyle: { color: '#000000', fontWeight: '600' },
+              headerTintColor: '#000000',
+              contentStyle: { backgroundColor: '#FFFFFF' },
+            }}
           />
           <Stack.Screen name="reminder/[id]" options={{ title: 'Reminder' }} />
         </Stack>

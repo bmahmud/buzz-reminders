@@ -26,6 +26,9 @@ import {
 import { STRINGS } from '../../constants/strings';
 import { useReminderStore } from '../../store/reminders';
 
+/** High-contrast form text (labels, title field, chips, date). */
+const FORM_TEXT = '#000000';
+
 const TYPES: ReminderType[] = [
   'task',
   'event',
@@ -184,6 +187,13 @@ export default function NewReminderScreen() {
           value={due}
           mode="datetime"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          {...(Platform.OS === 'ios'
+            ? {
+                textColor: FORM_TEXT,
+                accentColor: THEME.accent,
+                themeVariant: 'light' as const,
+              }
+            : {})}
           onChange={(_, d) => {
             if (Platform.OS === 'android') setShowPicker(false);
             if (d) setDue(d);
@@ -257,7 +267,7 @@ export default function NewReminderScreen() {
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
-    backgroundColor: THEME.background,
+    backgroundColor: '#FFFFFF',
   },
   content: {
     paddingHorizontal: 16,
@@ -266,9 +276,9 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 4,
-    color: THEME.textSecondary,
+    color: FORM_TEXT,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   input: {
     borderWidth: 1,
@@ -276,7 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: THEME.textPrimary,
+    color: FORM_TEXT,
     fontSize: 16,
     backgroundColor: THEME.surface,
   },
@@ -302,12 +312,13 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.surfaceElevated,
   },
   chipText: {
-    color: THEME.textSecondary,
+    color: FORM_TEXT,
     fontSize: 14,
     fontWeight: '600',
   },
   chipTextActive: {
-    color: THEME.textPrimary,
+    color: FORM_TEXT,
+    fontWeight: '700',
   },
   dateButton: {
     paddingVertical: 12,
@@ -318,8 +329,9 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.surface,
   },
   dateButtonText: {
-    color: THEME.textPrimary,
+    color: FORM_TEXT,
     fontSize: 16,
+    fontWeight: '600',
   },
   save: {
     marginTop: 16,
