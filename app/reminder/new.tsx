@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import React, { useState, type CSSProperties } from 'react';
 import {
   Platform,
   Pressable,
@@ -28,6 +28,16 @@ import { useReminderStore } from '../../store/reminders';
 
 /** High-contrast form text (labels, title field, chips, date). */
 const FORM_TEXT = '#000000';
+
+/** `datetime-local` value in local timezone (RN DateTimePicker is unsupported on web). */
+function toDatetimeLocalString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const h = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d}T${h}:${min}`;
+}
 
 const TYPES: ReminderType[] = [
   'task',
@@ -169,6 +179,38 @@ export default function NewReminderScreen() {
       </View>
 
       <Text style={styles.label}>{STRINGS.reminder.dateTimeLabel}</Text>
+      {Platform.OS === 'web' ? (
+        <View style={styles.webDatetimeBlock}>
+          <Text style={styles.dateButtonText}>
+            {due.toLocaleString(undefined, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+            })}
+          </Text>
+          {React.createElement('input', {
+            type: 'datetime-local',
+            value: toDatetimeLocalString(due),
+            step: 60,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              const v = e.target.value;
+              if (!v) return;
+              const next = new Date(v);
+              if (!Number.isNaN(next.getTime())) setDue(next);
+            },
+            style: {
+              marginTop: 8,
+              width: '100%',
+              fontSize: 16,
+              padding: 12,
+              borderRadius: 12,
+              border: `1px solid ${THEME.border}`,
+              color: FORM_TEXT,
+              backgroundColor: THEME.surface,
+              boxSizing: 'border-box',
+            } satisfies CSSProperties,
+          })}
+        </View>
+      ) : null}
       {Platform.OS === 'android' && (
         <Pressable
           onPress={() => setShowPicker(true)}
@@ -182,7 +224,8 @@ export default function NewReminderScreen() {
           </Text>
         </Pressable>
       )}
-      {(Platform.OS === 'ios' || showPicker) && (
+      {(Platform.OS === 'ios' ||
+        (Platform.OS === 'android' && showPicker)) && (
         <DateTimePicker
           value={due}
           mode="datetime"
@@ -332,6 +375,9 @@ const styles = StyleSheet.create({
     color: FORM_TEXT,
     fontSize: 16,
     fontWeight: '600',
+  },
+  webDatetimeBlock: {
+    marginTop: 4,
   },
   save: {
     marginTop: 16,
