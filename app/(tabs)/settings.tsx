@@ -64,7 +64,7 @@ export default function SettingsScreen() {
           </View>
           <View style={styles.profileBody}>
             <BuzzText variant="subtitle">{displayName}</BuzzText>
-            <BuzzText variant="caption" muted>
+            <BuzzText variant="caption" style={{ color: TOKENS.accentPurple }}>
               Tap to edit profile
             </BuzzText>
           </View>
@@ -81,6 +81,8 @@ export default function SettingsScreen() {
           value={notificationsEnabled}
           onValueChange={onToggleNotifications}
           trackColor={{ false: TOKENS.line, true: TOKENS.accentGreen }}
+          thumbColor={TOKENS.cream}
+          ios_backgroundColor={TOKENS.line}
         />
       </BuzzCard>
       <Pressable onPress={() => setPicker('alert')}>

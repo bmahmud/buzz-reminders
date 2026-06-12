@@ -101,7 +101,7 @@ export default function ReminderDetailScreen() {
         />
         <BuzzButton
           label="Edit"
-          variant="secondary"
+          variant="edit"
           onPress={() => router.push(`/reminder/edit/${reminder.id}`)}
         />
         <BuzzButton

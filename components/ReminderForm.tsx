@@ -126,7 +126,7 @@ export function ReminderForm({ mode, initial }: ReminderFormProps) {
             value={title}
             onChangeText={setTitle}
             placeholder="Type a reminder..."
-            placeholderTextColor="rgba(255,253,248,0.7)"
+            placeholderTextColor="rgba(250,243,228,0.65)"
             style={styles.promptInput}
             maxLength={80}
             multiline
@@ -289,11 +289,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   promptLabel: {
-    color: TOKENS.card,
+    color: TOKENS.cream,
     fontSize: 22,
   },
   promptInput: {
-    color: TOKENS.card,
+    color: TOKENS.cream,
     fontFamily: 'PatrickHand_400Regular',
     fontSize: 24,
     marginTop: 8,
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   promptBar: {
     height: 2,
-    backgroundColor: TOKENS.card,
+    backgroundColor: TOKENS.cream,
     opacity: 0.5,
     marginTop: 8,
     width: '60%',

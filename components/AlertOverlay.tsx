@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PRIORITY_COLORS, THEME } from '../constants/colors';
+import { PRIORITY_COLORS, THEME, TOKENS } from '../constants/colors';
 import type { Reminder } from '../constants/reminderTypes';
 import { STRINGS } from '../constants/strings';
 
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     opacity: 0.88,
   },
   buttonText: {
-    color: '#fff',
+    color: TOKENS.cream,
     fontSize: 16,
     fontWeight: '700',
   },

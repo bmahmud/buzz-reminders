@@ -38,7 +38,7 @@ export default function OnboardingScreen() {
     <View style={[styles.screen, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
       <View style={styles.hero}>
         <View style={styles.iconCircle}>
-          <Ionicons name="notifications-outline" size={40} color={TOKENS.card} />
+          <Ionicons name="notifications-outline" size={40} color={TOKENS.cream} />
         </View>
         <BuzzText variant="title">{STRINGS.onboarding.title}</BuzzText>
         <BuzzText muted style={styles.subtitle}>

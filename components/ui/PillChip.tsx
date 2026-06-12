@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   labelActive: {
-    color: TOKENS.card,
+    color: TOKENS.cream,
   },
   labelInactive: {
     color: TOKENS.ink,

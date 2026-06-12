@@ -116,7 +116,7 @@ export default function AuthScreen() {
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
           >
             {loading ? (
-              <ActivityIndicator color={TOKENS.card} />
+              <ActivityIndicator color={TOKENS.cream} />
             ) : (
               <BuzzText style={styles.primaryBtnText}>Send magic link</BuzzText>
             )}
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryBtnText: {
-    color: TOKENS.card,
+    color: TOKENS.cream,
     fontSize: 18,
   },
   pressed: {

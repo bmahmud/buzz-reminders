@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, type TextProps, ViewStyle } from 'react-native';
 import { TOKENS } from '../../constants/colors';
 
-type BuzzButtonVariant = 'primary' | 'secondary' | 'danger';
+type BuzzButtonVariant = 'primary' | 'secondary' | 'edit' | 'danger';
 
 export interface BuzzButtonProps {
   label: string;
@@ -23,13 +23,18 @@ const variantStyles: Record<
   },
   secondary: {
     bg: TOKENS.accentGreen,
-    text: TOKENS.card,
+    text: TOKENS.cream,
     border: TOKENS.ink,
+  },
+  edit: {
+    bg: TOKENS.accentPurple,
+    text: TOKENS.cream,
+    border: TOKENS.accentPurpleDark,
   },
   danger: {
     bg: TOKENS.card,
     text: TOKENS.hi,
-    border: '#e8543a',
+    border: TOKENS.hi,
   },
 };
 

@@ -83,7 +83,7 @@ export default function EditProfileScreen() {
         />
         {error ? <BuzzText style={styles.error}>{error}</BuzzText> : null}
 
-        <BuzzButton label="Save profile" onPress={onSave} style={styles.saveBtn} />
+        <BuzzButton label="Save profile" variant="edit" onPress={onSave} style={styles.saveBtn} />
         <Pressable onPress={() => router.back()} style={styles.cancelBtn}>
           <BuzzText muted>Cancel</BuzzText>
         </Pressable>

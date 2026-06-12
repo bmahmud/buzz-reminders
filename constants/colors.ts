@@ -1,12 +1,19 @@
-/** Wireframe design tokens — mirrors global.css :root */
+/** Wireframe design.tokens — warm palette, no pure white */
 export const TOKENS = {
   ink: '#2c2a26',
   inkSoft: '#7a746b',
   paper: '#f6f2e9',
-  card: '#fffdf8',
+  /** Warm cream surface — never pure white */
+  card: '#f0e6d2',
+  surface: '#f0e6d2',
+  /** Light cream for text/icons on dark or purple backgrounds */
+  cream: '#faf3e4',
   line: '#d9d2c4',
   accentCoral: '#ff7a4d',
   accentGreen: '#1b4332',
+  accentPurple: '#7c5cbf',
+  accentPurpleDark: '#5a3d8f',
+  accentPurpleLight: '#e4d9f5',
   hi: '#e8543a',
   cardRadius: 24,
   success: '#1b4332',
@@ -20,7 +27,7 @@ export const PRIORITY_COLORS = {
   critical: '#d6336c',
 } as const;
 
-/** @deprecated Use TOKENS — kept for gradual migration */
+/** @deprecated Use TOKENS */
 export const THEME = {
   background: TOKENS.paper,
   surface: TOKENS.card,

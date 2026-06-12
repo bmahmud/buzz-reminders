@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import { PRIORITY_COLORS, PRIORITY_UI_LABELS } from '../../constants/colors';
+import { PRIORITY_COLORS, PRIORITY_UI_LABELS, TOKENS } from '../../constants/colors';
 import type { Priority } from '../../constants/reminderTypes';
 
 export interface PriorityPillProps {
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: '#2c2a26',
-    backgroundColor: '#fffdf8',
+    backgroundColor: TOKENS.card,
   },
   dot: {
     width: 8,
