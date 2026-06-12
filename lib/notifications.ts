@@ -11,7 +11,16 @@ interface NotificationPayload {
   alertMode?: AlertMode;
 }
 
-function behaviorForAlertMode(mode: AlertMode | undefined): {
+function behaviorForAlertMode(mode: AlertMode | undefined): Notifications.NotificationBehavior {
+  const base = behaviorForAlertModeBase(mode);
+  return {
+    ...base,
+    shouldShowBanner: base.shouldShowAlert,
+    shouldShowList: base.shouldShowAlert,
+  };
+}
+
+function behaviorForAlertModeBase(mode: AlertMode | undefined): {
   shouldShowAlert: boolean;
   shouldPlaySound: boolean;
   shouldSetBadge: boolean;
@@ -90,19 +99,43 @@ function alertModeToSoundVibrate(alertMode: Reminder['alertMode']): {
 
 const webTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
+function postToServiceWorker(message: Record<string, unknown>): void {
+  if (Platform.OS !== 'web' || typeof navigator === 'undefined') return;
+  const controller = navigator.serviceWorker?.controller;
+  if (controller) {
+    controller.postMessage(message);
+  }
+}
+
 export function cancelWebTimer(id: string): void {
   const t = webTimers.get(id);
   if (t !== undefined) {
     clearTimeout(t);
     webTimers.delete(id);
   }
+  postToServiceWorker({ type: 'CANCEL_REMINDER', id });
 }
 
 async function scheduleWebReminder(reminder: Reminder): Promise<string[]> {
   const ids: string[] = [];
   const due = new Date(reminder.dueAt).getTime();
-  const delay = Math.max(0, due - Date.now());
+  if (due <= Date.now()) return ids;
+
   const id = `web-${reminder.id}-${Date.now()}`;
+
+  if (typeof navigator !== 'undefined' && navigator.serviceWorker?.controller) {
+    postToServiceWorker({
+      type: 'SCHEDULE_REMINDER',
+      id,
+      reminderId: reminder.id,
+      title: reminder.title,
+      dueAt: due,
+    });
+    ids.push(id);
+    return ids;
+  }
+
+  const delay = Math.max(0, due - Date.now());
   const t = setTimeout(() => {
     webTimers.delete(id);
     try {
@@ -218,4 +251,7 @@ export async function cancelAllForReminder(reminder: Reminder): Promise<void> {
     await cancelNotificationId(nid);
   }
   await cancelNotificationId(reminder.criticalRepeatNotificationId);
+  if (Platform.OS === 'web') {
+    postToServiceWorker({ type: 'CANCEL_ALL_FOR_REMINDER', reminderId: reminder.id });
+  }
 }

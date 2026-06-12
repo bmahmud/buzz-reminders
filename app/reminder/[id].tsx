@@ -29,6 +29,7 @@ export default function ReminderDetailScreen() {
 
   const meta = REMINDER_TYPE_META[reminder.type];
   const due = new Date(reminder.dueAt);
+  const reminderId = reminder.id;
 
   function onDelete() {
     Alert.alert(
@@ -40,7 +41,7 @@ export default function ReminderDetailScreen() {
           text: STRINGS.actions.delete,
           style: 'destructive',
           onPress: () => {
-            void deleteReminder(reminder.id);
+            void deleteReminder(reminderId);
             router.back();
           },
         },

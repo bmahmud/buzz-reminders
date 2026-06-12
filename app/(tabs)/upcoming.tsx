@@ -1,47 +1,61 @@
 import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReminderCard } from '../../components/ReminderCard';
 import { SwipeableRow } from '../../components/SwipeableRow';
-import { THEME } from '../../constants/colors';
+import { BuzzText } from '../../components/ui/BuzzText';
+import { ScreenHeader } from '../../components/ui/ScreenHeader';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { TOKENS } from '../../constants/colors';
 import { STRINGS } from '../../constants/strings';
-import { useUpcomingReminders } from '../../hooks/useReminders';
+import { useUpcomingGroups } from '../../hooks/useUpcomingGroups';
 import { promptSnooze } from '../../lib/snoozePrompt';
 import { useReminderStore } from '../../store/reminders';
 
 export default function UpcomingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const items = useUpcomingReminders();
+  const groups = useUpcomingGroups();
   const complete = useReminderStore((s) => s.completeReminder);
   const snooze = useReminderStore((s) => s.snoozeReminder);
+  const isEmpty = groups.length === 0;
 
   return (
     <View style={[styles.screen, { paddingBottom: insets.bottom + 8 }]}>
       <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
+        data={groups}
+        keyExtractor={(g) => g.key}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>{STRINGS.empty.upcoming}</Text>
-          </View>
+        ListHeaderComponent={
+          <ScreenHeader title="Upcoming" subtitle="Next two weeks" />
         }
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <SwipeableRow
-              onComplete={() => void complete(item.id)}
-              onSnooze={() =>
-                promptSnooze((m) => {
-                  void snooze(item.id, m);
-                })
-              }
-            >
-              <ReminderCard
-                reminder={item}
-                onPress={() => router.push(`/reminder/${item.id}`)}
-              />
-            </SwipeableRow>
+        ListEmptyComponent={
+          isEmpty ? (
+            <View style={styles.empty}>
+              <BuzzText muted>{STRINGS.empty.upcoming}</BuzzText>
+            </View>
+          ) : null
+        }
+        renderItem={({ item: group }) => (
+          <View style={styles.section}>
+            <SectionHeader title={group.title} tone={group.tone} icon="calendar-outline" />
+            {group.items.map((reminder) => (
+              <View key={reminder.id} style={styles.row}>
+                <SwipeableRow
+                  onComplete={() => void complete(reminder.id)}
+                  onSnooze={() =>
+                    promptSnooze((m) => {
+                      void snooze(reminder.id, m);
+                    })
+                  }
+                >
+                  <ReminderCard
+                    reminder={reminder}
+                    onPress={() => router.push(`/reminder/${reminder.id}`)}
+                  />
+                </SwipeableRow>
+              </View>
+            ))}
           </View>
         )}
       />
@@ -52,28 +66,25 @@ export default function UpcomingScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: THEME.background,
+    backgroundColor: TOKENS.paper,
   },
   list: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: 20,
     paddingBottom: 24,
+  },
+  section: {
+    marginBottom: 8,
   },
   row: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   empty: {
-    paddingTop: 48,
-    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingHorizontal: 16,
     paddingBottom: 24,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    backgroundColor: TOKENS.card,
+    borderRadius: TOKENS.cardRadius,
     borderWidth: 1,
-    borderColor: THEME.border,
-  },
-  emptyText: {
-    color: THEME.textSecondary,
-    fontSize: 15,
-    textAlign: 'center',
+    borderColor: TOKENS.ink,
   },
 });

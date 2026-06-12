@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { THEME } from '../constants/colors';
+import { BuzzText } from '../components/ui/BuzzText';
+import { TOKENS } from '../constants/colors';
 import { STRINGS } from '../constants/strings';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { requestNotificationPermissions } from '../lib/notifications';
 import { useSettingsStore } from '../store/settings';
 
@@ -15,30 +17,42 @@ export default function OnboardingScreen() {
   async function onEnable() {
     await requestNotificationPermissions();
     setDone(true);
+    if (isSupabaseConfigured) {
+      router.replace('/auth');
+      return;
+    }
     router.replace('/(tabs)');
   }
 
   function onSkip() {
     setDone(true);
+    if (isSupabaseConfigured) {
+      router.replace('/auth');
+      return;
+    }
     router.replace('/(tabs)');
   }
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
       <View style={styles.hero}>
-        <Ionicons name="notifications" size={48} color={THEME.accent} />
-        <Text style={styles.title}>{STRINGS.onboarding.title}</Text>
-        <Text style={styles.subtitle}>{STRINGS.onboarding.subtitle}</Text>
+        <View style={styles.iconCircle}>
+          <Ionicons name="notifications-outline" size={40} color={TOKENS.card} />
+        </View>
+        <BuzzText variant="title">{STRINGS.onboarding.title}</BuzzText>
+        <BuzzText muted style={styles.subtitle}>
+          {STRINGS.onboarding.subtitle}
+        </BuzzText>
       </View>
       <View style={styles.actions}>
         <Pressable
           onPress={onEnable}
           style={({ pressed }) => [styles.primary, pressed && styles.pressed]}
         >
-          <Text style={styles.primaryText}>{STRINGS.onboarding.enable}</Text>
+          <BuzzText style={styles.primaryText}>{STRINGS.onboarding.enable}</BuzzText>
         </Pressable>
         <Pressable onPress={onSkip} style={styles.secondary}>
-          <Text style={styles.secondaryText}>{STRINGS.onboarding.skip}</Text>
+          <BuzzText muted>{STRINGS.onboarding.skip}</BuzzText>
         </Pressable>
       </View>
     </View>
@@ -48,20 +62,25 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: THEME.background,
+    backgroundColor: TOKENS.paper,
     paddingHorizontal: 24,
     justifyContent: 'space-between',
   },
   hero: {
-    gap: 12,
+    gap: 16,
+    alignItems: 'flex-start',
   },
-  title: {
-    color: THEME.textPrimary,
-    fontSize: 28,
-    fontWeight: '700',
+  iconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: TOKENS.accentGreen,
+    borderWidth: 1,
+    borderColor: TOKENS.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   subtitle: {
-    color: THEME.textSecondary,
     fontSize: 16,
     lineHeight: 22,
   },
@@ -69,25 +88,20 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primary: {
-    backgroundColor: THEME.accent,
+    backgroundColor: TOKENS.ink,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 999,
     alignItems: 'center',
   },
   pressed: {
     opacity: 0.9,
   },
   primaryText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+    color: TOKENS.card,
+    fontSize: 18,
   },
   secondary: {
     paddingVertical: 12,
     alignItems: 'center',
-  },
-  secondaryText: {
-    color: THEME.textSecondary,
-    fontSize: 15,
   },
 });

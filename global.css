@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #2c2a26;
+  --ink-soft: #7a746b;
+  --paper: #f6f2e9;
+  --card: #fffdf8;
+  --line: #d9d2c4;
+  --accent: #ff7a4d;
+  --accent-coral: #ff7a4d;
+  --accent-green: #1b4332;
+  --hi: #e8543a;
+  --med: #f0a73a;
+  --low: #4f9be0;
+  --crit: #d6336c;
+  --card-radius: 24px;
+  --rough: 220px 14px 200px 16px / 14px 200px 16px 220px;
+  --display: 'Patrick Hand', system-ui, cursive;
+}
+
+body {
+  background-color: var(--paper);
+  font-family: var(--display);
+}

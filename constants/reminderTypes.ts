@@ -53,6 +53,10 @@ export interface Reminder {
   criticalRepeatNotificationId?: string;
   createdAt: string;
   updatedAt: string;
+  /** Habit streak count (habits only) */
+  streakCount?: number;
+  /** Last 7 days completion (habits only), index 0 = 6 days ago */
+  weeklyHistory?: boolean[];
 }
 
 export const REMINDER_TYPE_META: Record<

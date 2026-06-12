@@ -6,11 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "buzz-reminders",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0284C7"
+      "backgroundColor": "#f6f2e9"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -22,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#0284C7"
+        "backgroundColor": "#f6f2e9"
       },
       "package": "com.buzzreminders.app"
     },
@@ -32,8 +32,8 @@
       "name": "Buzz Reminders",
       "shortName": "Buzz",
       "description": "Smart reminders with priority alerts",
-      "themeColor": "#0284C7",
-      "backgroundColor": "#F0F9FF",
+      "themeColor": "#1b4332",
+      "backgroundColor": "#f6f2e9",
       "display": "standalone",
       "orientation": "portrait"
     },

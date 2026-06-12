@@ -1,88 +1,138 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReminderCard } from '../../components/ReminderCard';
-import { THEME } from '../../constants/colors';
 import { SwipeableRow } from '../../components/SwipeableRow';
+import { BuzzText } from '../../components/ui/BuzzText';
+import { FabAdd } from '../../components/ui/FabAdd';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { TOKENS } from '../../constants/colors';
 import { STRINGS } from '../../constants/strings';
-import { useTodayReminders } from '../../hooks/useReminders';
+import { getTimeGreeting, useTodayBuckets } from '../../hooks/useTodayBuckets';
 import { promptSnooze } from '../../lib/snoozePrompt';
 import { useReminderStore } from '../../store/reminders';
+import { useSettingsStore } from '../../store/settings';
+
+function AvatarHeader({
+  name,
+  emoji,
+  subtitle,
+  onMenuPress,
+}: {
+  name: string;
+  emoji: string;
+  subtitle: string;
+  onMenuPress?: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+  const greeting = getTimeGreeting();
+
+  return (
+    <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <View style={styles.headerTop}>
+        <View style={styles.avatar}>
+          <BuzzText style={styles.avatarText}>{emoji}</BuzzText>
+        </View>
+        <View style={styles.headerActions}>
+          <FabAdd />
+          {onMenuPress ? (
+            <Pressable onPress={onMenuPress} hitSlop={8}>
+              <Ionicons name="ellipsis-horizontal" size={22} color={TOKENS.ink} />
+            </Pressable>
+          ) : null}
+        </View>
+      </View>
+      <BuzzText variant="title">{`${greeting}, ${name}!`}</BuzzText>
+      <BuzzText variant="caption" muted style={styles.subtitle}>
+        {subtitle}
+      </BuzzText>
+    </View>
+  );
+}
 
 export default function TodayScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const items = useTodayReminders();
-  const reminders = useReminderStore((s) => s.reminders);
+  const { rightNow, laterToday, doneToday, nowCount, laterCount } = useTodayBuckets();
+  const displayName = useSettingsStore((s) => s.displayName);
+  const avatarEmoji = useSettingsStore((s) => s.avatarEmoji);
   const complete = useReminderStore((s) => s.completeReminder);
   const snooze = useReminderStore((s) => s.snoozeReminder);
-  const totalCount = reminders.length;
-  const activeCount = reminders.filter(
-    (item) => item.status === 'pending' || item.status === 'snoozed'
-  ).length;
-  const completedCount = reminders.filter((item) => item.status === 'completed').length;
+
+  const subtitle =
+    nowCount + laterCount === 0
+      ? 'Nothing scheduled today'
+      : `${nowCount} thing${nowCount === 1 ? '' : 's'} now · ${laterCount} later today`;
+
+  const sections = [
+    { key: 'rightNow', title: 'Right now', tone: 'coral' as const, icon: 'alarm-outline' as const, data: rightNow, faded: false },
+    { key: 'later', title: 'Later today', tone: 'muted' as const, data: laterToday, faded: false },
+    { key: 'done', title: 'Done ✓', tone: 'muted' as const, data: doneToday, faded: true },
+  ].filter((s) => s.data.length > 0 || s.key === 'rightNow');
+
+  const isEmpty = rightNow.length === 0 && laterToday.length === 0 && doneToday.length === 0;
 
   return (
     <View style={[styles.screen, { paddingBottom: insets.bottom + 8 }]}>
       <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
+        data={sections}
+        keyExtractor={(item) => item.key}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.title}>{STRINGS.appName}</Text>
-            <Text style={styles.subtitle}>Stay organized and never miss a thing</Text>
-            <View style={styles.statsRow}>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{totalCount}</Text>
-                <Text style={styles.statLabel}>Total</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{activeCount}</Text>
-                <Text style={styles.statLabel}>Active</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{completedCount}</Text>
-                <Text style={styles.statLabel}>Completed</Text>
-              </View>
-            </View>
-            <View style={styles.addRow}>
-              <TextInput
-                style={styles.addInput}
-                placeholder="Add a new reminder..."
-                placeholderTextColor={THEME.textSecondary}
-                editable={false}
-              />
-              <Pressable
-                onPress={() => router.push('/reminder/new')}
-                style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-              >
-                <Text style={styles.addButtonText}>+ Add</Text>
-              </Pressable>
-            </View>
-            <Text style={styles.sectionTitle}>ACTIVE ({items.length})</Text>
-          </View>
+          <AvatarHeader
+            name={displayName}
+            emoji={avatarEmoji}
+            subtitle={subtitle}
+          />
         }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>{STRINGS.empty.today}</Text>
-          </View>
+          isEmpty ? (
+            <View style={styles.empty}>
+              <BuzzText muted style={styles.emptyText}>
+                {STRINGS.empty.today}
+              </BuzzText>
+            </View>
+          ) : null
         }
         renderItem={({ item }) => (
-          <View style={styles.row}>
-            <SwipeableRow
-              onComplete={() => void complete(item.id)}
-              onSnooze={() =>
-                promptSnooze((m) => {
-                  void snooze(item.id, m);
-                })
-              }
-            >
-              <ReminderCard
-                reminder={item}
-                onPress={() => router.push(`/reminder/${item.id}`)}
-              />
-            </SwipeableRow>
+          <View style={styles.section}>
+            <SectionHeader
+              title={item.title}
+              tone={item.tone}
+              icon={'icon' in item ? item.icon : undefined}
+            />
+            {item.data.length === 0 ? (
+              <BuzzText muted variant="caption">
+                Nothing here right now
+              </BuzzText>
+            ) : (
+              item.data.map((reminder) => (
+                <View key={reminder.id} style={styles.row}>
+                  {item.faded || item.key === 'done' ? (
+                    <ReminderCard
+                      reminder={reminder}
+                      faded
+                      onPress={() => router.push(`/reminder/${reminder.id}`)}
+                    />
+                  ) : (
+                    <SwipeableRow
+                      onComplete={() => void complete(reminder.id)}
+                      onSnooze={() =>
+                        promptSnooze((m) => {
+                          void snooze(reminder.id, m);
+                        })
+                      }
+                    >
+                      <ReminderCard
+                        reminder={reminder}
+                        onPress={() => router.push(`/reminder/${reminder.id}`)}
+                      />
+                    </SwipeableRow>
+                  )}
+                </View>
+              ))
+            )}
           </View>
         )}
       />
@@ -93,106 +143,59 @@ export default function TodayScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: THEME.background,
+    backgroundColor: TOKENS.paper,
   },
   list: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: 20,
     paddingBottom: 24,
   },
   header: {
+    marginBottom: 16,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 12,
   },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 34,
-    fontWeight: '700',
-    textAlign: 'center',
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: TOKENS.ink,
+    backgroundColor: TOKENS.accentGreen,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  subtitle: {
-    color: '#E0F2FE',
-    textAlign: 'center',
-    marginTop: 6,
-    marginBottom: 14,
+  avatarText: {
+    fontSize: 22,
   },
-  statsRow: {
+  headerActions: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
   },
-  statCard: {
-    flex: 1,
-    backgroundColor: THEME.surface,
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: THEME.border,
+  subtitle: {
+    marginTop: 4,
   },
-  statValue: {
-    color: THEME.accent,
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  statLabel: {
-    color: THEME.textSecondary,
-    marginTop: 2,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  addRow: {
-    marginTop: 14,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  addInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: THEME.border,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: THEME.textPrimary,
-    backgroundColor: THEME.surface,
-  },
-  addButton: {
-    backgroundColor: THEME.accent,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-  addButtonPressed: {
-    opacity: 0.9,
-  },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  sectionTitle: {
-    marginTop: 14,
+  section: {
     marginBottom: 8,
-    color: '#075985',
-    fontSize: 12,
-    fontWeight: '700',
   },
   row: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   empty: {
-    paddingTop: 48,
-    paddingHorizontal: 24,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: THEME.border,
+    paddingTop: 32,
+    paddingHorizontal: 16,
     paddingBottom: 24,
+    backgroundColor: TOKENS.card,
+    borderRadius: TOKENS.cardRadius,
+    borderWidth: 1,
+    borderColor: TOKENS.ink,
   },
   emptyText: {
-    color: THEME.textSecondary,
-    fontSize: 15,
     textAlign: 'center',
+    fontSize: 16,
   },
 });

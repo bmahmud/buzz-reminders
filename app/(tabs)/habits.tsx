@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ReminderCard } from '../../components/ReminderCard';
+import { HabitCard } from '../../components/HabitCard';
 import { SwipeableRow } from '../../components/SwipeableRow';
-import { THEME } from '../../constants/colors';
+import { BuzzText } from '../../components/ui/BuzzText';
+import { ScreenHeader } from '../../components/ui/ScreenHeader';
+import { TOKENS } from '../../constants/colors';
 import { STRINGS } from '../../constants/strings';
 import { useHabitReminders } from '../../hooks/useHabits';
 import { promptSnooze } from '../../lib/snoozePrompt';
@@ -22,9 +24,12 @@ export default function HabitsScreen() {
         data={items}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <ScreenHeader title="Habits" subtitle="keep the streak 🔥" />
+        }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>{STRINGS.empty.habits}</Text>
+            <BuzzText muted>{STRINGS.empty.habits}</BuzzText>
           </View>
         }
         renderItem={({ item }) => (
@@ -37,8 +42,8 @@ export default function HabitsScreen() {
                 })
               }
             >
-              <ReminderCard
-                reminder={item}
+              <HabitCard
+                habit={item}
                 onPress={() => router.push(`/reminder/${item.id}`)}
               />
             </SwipeableRow>
@@ -52,28 +57,22 @@ export default function HabitsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: THEME.background,
+    backgroundColor: TOKENS.paper,
   },
   list: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: 20,
     paddingBottom: 24,
   },
   row: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   empty: {
-    paddingTop: 48,
-    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingHorizontal: 16,
     paddingBottom: 24,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    backgroundColor: TOKENS.card,
+    borderRadius: TOKENS.cardRadius,
     borderWidth: 1,
-    borderColor: THEME.border,
-  },
-  emptyText: {
-    color: THEME.textSecondary,
-    fontSize: 15,
-    textAlign: 'center',
+    borderColor: TOKENS.ink,
   },
 });

@@ -11,7 +11,16 @@ import {
 import { getNextDueDate } from '../lib/recurrence';
 import { logger } from '../lib/logger';
 
+import {
+  deleteReminderFromCloud,
+  syncReminderToCloud,
+} from '../lib/sync';
+import { validateReminderInput } from '../lib/validation';
+
 function newId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
@@ -43,20 +52,30 @@ export const useReminderStore = create<RemindersState>()(
       reminders: [],
 
       addReminder: async (input) => {
+        const validated = validateReminderInput(input);
+        if (!validated.success) {
+          logger.error('addReminder validation', validated.error);
+          return;
+        }
         const now = new Date().toISOString();
         const base: Reminder = {
-          ...input,
+          ...validated.data,
           id: newId(),
           notificationIds: [],
           createdAt: now,
           updatedAt: now,
+          streakCount: validated.data.type === 'habit' ? 0 : undefined,
+          weeklyHistory:
+            validated.data.type === 'habit' ? [false, false, false, false, false, false, false] : undefined,
         };
         try {
           const scheduled = await reschedule(base);
           set((s) => ({ reminders: [...s.reminders, scheduled] }));
+          void syncReminderToCloud(scheduled);
         } catch (e) {
           logger.error('addReminder', e);
           set((s) => ({ reminders: [...s.reminders, base] }));
+          void syncReminderToCloud(base);
         }
       },
 
@@ -73,11 +92,13 @@ export const useReminderStore = create<RemindersState>()(
           set((s) => ({
             reminders: s.reminders.map((r) => (r.id === id ? scheduled : r)),
           }));
+          void syncReminderToCloud(scheduled);
         } catch (e) {
           logger.error('updateReminder', e);
           set((s) => ({
             reminders: s.reminders.map((r) => (r.id === id ? next : r)),
           }));
+          void syncReminderToCloud(next);
         }
       },
 
@@ -93,6 +114,7 @@ export const useReminderStore = create<RemindersState>()(
         set((s) => ({
           reminders: s.reminders.filter((r) => r.id !== id),
         }));
+        void deleteReminderFromCloud(id);
       },
 
       completeReminder: async (id) => {
@@ -124,34 +146,37 @@ export const useReminderStore = create<RemindersState>()(
             set((s) => ({
               reminders: s.reminders.map((r) => (r.id === id ? scheduled : r)),
             }));
+            void syncReminderToCloud(scheduled);
           } catch (e) {
             logger.error('completeReminder reschedule', e);
+            const fallback = {
+              ...next,
+              notificationIds: [],
+            };
             set((s) => ({
-              reminders: s.reminders.map((r) =>
-                r.id === id
-                  ? {
-                      ...next,
-                      notificationIds: [],
-                    }
-                  : r
-              ),
+              reminders: s.reminders.map((r) => (r.id === id ? fallback : r)),
             }));
+            void syncReminderToCloud(fallback as Reminder);
           }
         } else {
+          const updated = {
+            ...prev,
+            status: 'completed' as ReminderStatus,
+            completedAt,
+            updatedAt: completedAt,
+            notificationIds: [],
+            criticalRepeatNotificationId: undefined,
+            streakCount:
+              prev.type === 'habit' ? (prev.streakCount ?? 0) + 1 : prev.streakCount,
+            weeklyHistory:
+              prev.type === 'habit'
+                ? [...(prev.weeklyHistory ?? [false, false, false, false, false, false, false]).slice(1), true]
+                : prev.weeklyHistory,
+          };
           set((s) => ({
-            reminders: s.reminders.map((r) =>
-              r.id === id
-                ? {
-                    ...r,
-                    status: 'completed' as ReminderStatus,
-                    completedAt,
-                    updatedAt: completedAt,
-                    notificationIds: [],
-                    criticalRepeatNotificationId: undefined,
-                  }
-                : r
-            ),
+            reminders: s.reminders.map((r) => (r.id === id ? updated : r)),
           }));
+          void syncReminderToCloud(updated);
         }
       },
 
@@ -170,11 +195,13 @@ export const useReminderStore = create<RemindersState>()(
           set((s) => ({
             reminders: s.reminders.map((r) => (r.id === id ? scheduled : r)),
           }));
+          void syncReminderToCloud(scheduled);
         } catch (e) {
           logger.error('snoozeReminder', e);
           set((s) => ({
             reminders: s.reminders.map((r) => (r.id === id ? next : r)),
           }));
+          void syncReminderToCloud(next);
         }
       },
 
@@ -186,19 +213,17 @@ export const useReminderStore = create<RemindersState>()(
         } catch (e) {
           logger.error('dismissReminder', e);
         }
+        const updated = {
+          ...prev,
+          status: 'dismissed' as ReminderStatus,
+          updatedAt: new Date().toISOString(),
+          notificationIds: [],
+          criticalRepeatNotificationId: undefined,
+        };
         set((s) => ({
-          reminders: s.reminders.map((r) =>
-            r.id === id
-              ? {
-                  ...r,
-                  status: 'dismissed' as ReminderStatus,
-                  updatedAt: new Date().toISOString(),
-                  notificationIds: [],
-                  criticalRepeatNotificationId: undefined,
-                }
-              : r
-          ),
+          reminders: s.reminders.map((r) => (r.id === id ? updated : r)),
         }));
+        void syncReminderToCloud(updated);
       },
 
       setCriticalRepeatId: (id, criticalRepeatNotificationId) => {

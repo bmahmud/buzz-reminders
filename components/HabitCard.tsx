@@ -5,35 +5,22 @@ import { TOKENS } from '../constants/colors';
 import type { Reminder } from '../constants/reminderTypes';
 import { REMINDER_TYPE_META } from '../constants/reminderTypes';
 import { BuzzText } from './ui/BuzzText';
-import { PriorityPill } from './ui/PriorityPill';
 
-export interface ReminderCardProps {
-  reminder: Reminder;
+export interface HabitCardProps {
+  habit: Reminder;
   onPress: () => void;
   style?: ViewStyle;
-  faded?: boolean;
 }
 
-export function ReminderCard({ reminder, onPress, style, faded }: ReminderCardProps) {
-  const meta = REMINDER_TYPE_META[reminder.type];
-
-  const due = new Date(reminder.dueAt);
-  const timeLabel = due.toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-
-  const metaLine = `${meta.label} · ${timeLabel}`;
+export function HabitCard({ habit, onPress, style }: HabitCardProps) {
+  const meta = REMINDER_TYPE_META[habit.type];
+  const history = habit.weeklyHistory ?? [false, false, false, false, false, false, false];
+  const streak = habit.streakCount ?? 0;
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        faded && styles.faded,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed, style]}
     >
       <View style={styles.iconBubble}>
         <Ionicons
@@ -43,14 +30,24 @@ export function ReminderCard({ reminder, onPress, style, faded }: ReminderCardPr
         />
       </View>
       <View style={styles.body}>
-        <BuzzText variant="body" style={styles.title} numberOfLines={2}>
-          {reminder.title}
+        <BuzzText variant="body" style={styles.title}>
+          {habit.title}
         </BuzzText>
-        <BuzzText variant="caption" muted numberOfLines={1}>
-          {metaLine}
+        <View style={styles.weekRow}>
+          {history.map((done, i) => (
+            <View
+              key={i}
+              style={[styles.dayBox, done ? styles.dayDone : styles.dayEmpty]}
+            />
+          ))}
+        </View>
+      </View>
+      <View style={styles.streak}>
+        <BuzzText style={styles.streakNum}>{streak}</BuzzText>
+        <BuzzText variant="caption" muted>
+          days
         </BuzzText>
       </View>
-      <PriorityPill priority={reminder.priority} />
     </Pressable>
   );
 }
@@ -66,9 +63,6 @@ const styles = StyleSheet.create({
     borderColor: TOKENS.ink,
     backgroundColor: TOKENS.card,
   },
-  faded: {
-    opacity: 0.55,
-  },
   pressed: {
     opacity: 0.92,
   },
@@ -80,7 +74,6 @@ const styles = StyleSheet.create({
     borderColor: TOKENS.ink,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: TOKENS.card,
   },
   body: {
     flex: 1,
@@ -88,5 +81,31 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
+    marginBottom: 8,
+  },
+  weekRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  dayBox: {
+    width: 14,
+    height: 14,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: TOKENS.ink,
+  },
+  dayDone: {
+    backgroundColor: TOKENS.accentGreen,
+  },
+  dayEmpty: {
+    backgroundColor: 'transparent',
+  },
+  streak: {
+    alignItems: 'center',
+    minWidth: 44,
+  },
+  streakNum: {
+    fontSize: 22,
+    color: TOKENS.accentGreen,
   },
 });

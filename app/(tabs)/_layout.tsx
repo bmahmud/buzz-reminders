@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import type { ComponentProps } from 'react';
-import { THEME } from '../../constants/colors';
+import { StyleSheet } from 'react-native';
+import { TOKENS } from '../../constants/colors';
 import { STRINGS } from '../../constants/strings';
-import { NewReminderButton } from '../../components/NewReminderButton';
+import { BuzzText } from '../../components/ui/BuzzText';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -17,16 +18,15 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerStyle: { backgroundColor: THEME.background },
-        headerTintColor: '#FFFFFF',
-        headerShadowVisible: false,
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: '#BAE6FD',
-        },
-        tabBarActiveTintColor: THEME.accent,
-        tabBarInactiveTintColor: '#64748B',
+        headerShown: false,
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: TOKENS.accentGreen,
+        tabBarInactiveTintColor: TOKENS.inkSoft,
+        tabBarLabel: ({ color, children }) => (
+          <BuzzText variant="caption" style={{ color, fontSize: 12, marginTop: -2 }}>
+            {children}
+          </BuzzText>
+        ),
       }}
     >
       <Tabs.Screen
@@ -34,7 +34,6 @@ export default function TabsLayout() {
         options={{
           title: STRINGS.tabs.today,
           tabBarIcon: tabIcon('today-outline'),
-          headerRight: () => <NewReminderButton />,
         }}
       />
       <Tabs.Screen
@@ -42,7 +41,6 @@ export default function TabsLayout() {
         options={{
           title: STRINGS.tabs.upcoming,
           tabBarIcon: tabIcon('calendar-outline'),
-          headerRight: () => <NewReminderButton />,
         }}
       />
       <Tabs.Screen
@@ -50,7 +48,6 @@ export default function TabsLayout() {
         options={{
           title: STRINGS.tabs.habits,
           tabBarIcon: tabIcon('repeat-outline'),
-          headerRight: () => <NewReminderButton />,
         }}
       />
       <Tabs.Screen
@@ -58,16 +55,26 @@ export default function TabsLayout() {
         options={{
           title: STRINGS.tabs.all,
           tabBarIcon: tabIcon('list-outline'),
-          headerRight: () => <NewReminderButton />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: STRINGS.tabs.settings,
-          tabBarIcon: tabIcon('settings-outline'),
+          tabBarIcon: tabIcon('sunny-outline'),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: TOKENS.card,
+    borderTopColor: TOKENS.line,
+    borderTopWidth: 1,
+    height: 64,
+    paddingBottom: 8,
+    paddingTop: 6,
+  },
+});
