@@ -45,6 +45,7 @@ export const reminderInputSchema = z.object({
   snoozeOptions: z.array(z.number()).default([]),
   tags: z.array(z.string()).default([]),
   status: z.enum(['pending', 'snoozed', 'completed', 'dismissed', 'deleted']),
+  earlyReminderMinutes: z.number().nullable().optional(),
 });
 
 export type ReminderInputValidated = z.infer<typeof reminderInputSchema>;

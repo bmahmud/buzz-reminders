@@ -51,6 +51,8 @@ export interface Reminder {
   completedAt?: string;
   notificationIds: string[];
   criticalRepeatNotificationId?: string;
+  /** Minutes before dueAt to fire an early heads-up notification */
+  earlyReminderMinutes?: number | null;
   createdAt: string;
   updatedAt: string;
   /** Habit streak count (habits only) */

@@ -69,6 +69,23 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
+            name="reminder/edit/[id]"
+            options={{
+              presentation: 'modal',
+              title: 'Edit reminder',
+              headerTitleStyle: { color: TOKENS.ink, fontFamily: 'PatrickHand_400Regular' },
+              headerTintColor: TOKENS.ink,
+              contentStyle: { backgroundColor: TOKENS.paper },
+            }}
+          />
+          <Stack.Screen
+            name="profile/edit"
+            options={{
+              title: 'Edit profile',
+              headerTitleStyle: { fontFamily: 'PatrickHand_400Regular' },
+            }}
+          />
+          <Stack.Screen
             name="reminder/[id]"
             options={{
               title: 'Reminder',

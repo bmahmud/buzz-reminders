@@ -20,6 +20,7 @@ interface DbReminder {
   completed_at: string | null;
   streak_count: number | null;
   weekly_history: boolean[] | null;
+  early_reminder_minutes: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +41,7 @@ function toDb(reminder: Reminder, userId: string): Omit<DbReminder, 'created_at'
     completed_at: reminder.completedAt ?? null,
     streak_count: reminder.streakCount ?? null,
     weekly_history: reminder.weeklyHistory ?? null,
+    early_reminder_minutes: reminder.earlyReminderMinutes ?? null,
     updated_at: reminder.updatedAt,
     created_at: reminder.createdAt,
   };
@@ -60,6 +62,7 @@ function fromDb(row: DbReminder): Reminder {
     completedAt: row.completed_at ?? undefined,
     streakCount: row.streak_count ?? undefined,
     weeklyHistory: row.weekly_history ?? undefined,
+    earlyReminderMinutes: row.early_reminder_minutes ?? undefined,
     snoozeOptions: [],
     notificationIds: [],
     createdAt: row.created_at,

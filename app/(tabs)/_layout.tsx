@@ -10,7 +10,7 @@ type IconName = ComponentProps<typeof Ionicons>['name'];
 
 function tabIcon(name: IconName) {
   return function TabBarIcon({ color }: { color: string }) {
-    return <Ionicons name={name} size={22} color={color} />;
+    return <Ionicons name={name} size={26} color={color} />;
   };
 }
 
@@ -23,10 +23,11 @@ export default function TabsLayout() {
         tabBarActiveTintColor: TOKENS.accentGreen,
         tabBarInactiveTintColor: TOKENS.inkSoft,
         tabBarLabel: ({ color, children }) => (
-          <BuzzText variant="caption" style={{ color, fontSize: 12, marginTop: -2 }}>
+          <BuzzText variant="caption" style={{ color, fontSize: 14, marginTop: -2 }}>
             {children}
           </BuzzText>
         ),
+        tabBarIconStyle: { marginBottom: 0 },
       }}
     >
       <Tabs.Screen
@@ -73,8 +74,8 @@ const styles = StyleSheet.create({
     backgroundColor: TOKENS.card,
     borderTopColor: TOKENS.line,
     borderTopWidth: 1,
-    height: 64,
-    paddingBottom: 8,
-    paddingTop: 6,
+    height: 72,
+    paddingBottom: 10,
+    paddingTop: 8,
   },
 });

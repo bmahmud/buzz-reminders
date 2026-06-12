@@ -8,7 +8,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { THEME } from '../constants/colors';
+import { TOKENS } from '../constants/colors';
 
 const THRESHOLD = 72;
 
@@ -48,12 +48,12 @@ export function SwipeableRow({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.leftUnderlay}>
-        <Ionicons name="checkmark-circle" size={24} color={THEME.success} />
-        <Text style={styles.underlayText}>Done</Text>
+        <Ionicons name="checkmark-circle" size={26} color={TOKENS.accentGreen} />
+        <Text style={styles.underlayTextDone}>Done</Text>
       </View>
       <View style={styles.rightUnderlay}>
-        <Text style={styles.underlayText}>Snooze</Text>
-        <Ionicons name="alarm-outline" size={22} color={THEME.snooze} />
+        <Text style={styles.underlayTextSnooze}>Snooze</Text>
+        <Ionicons name="alarm-outline" size={24} color={TOKENS.snooze} />
       </View>
       <GestureDetector gesture={pan}>
         <Animated.View style={[styles.front, frontStyle]}>{children}</Animated.View>
@@ -66,11 +66,11 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: 14,
+    borderRadius: TOKENS.cardRadius,
   },
   front: {
-    backgroundColor: THEME.surface,
-    borderRadius: 14,
+    backgroundColor: TOKENS.card,
+    borderRadius: TOKENS.cardRadius,
   },
   leftUnderlay: {
     ...StyleSheet.absoluteFillObject,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 16,
     gap: 8,
-    backgroundColor: '#142618',
+    backgroundColor: TOKENS.paper,
   },
   rightUnderlay: {
     ...StyleSheet.absoluteFillObject,
@@ -87,11 +87,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingRight: 16,
     gap: 8,
-    backgroundColor: '#2a2418',
+    backgroundColor: TOKENS.paper,
   },
-  underlayText: {
-    color: THEME.textSecondary,
-    fontSize: 13,
+  underlayTextDone: {
+    color: TOKENS.accentGreen,
+    fontSize: 17,
+    fontFamily: 'PatrickHand_400Regular',
+    fontWeight: '600',
+  },
+  underlayTextSnooze: {
+    color: TOKENS.ink,
+    fontSize: 17,
+    fontFamily: 'PatrickHand_400Regular',
     fontWeight: '600',
   },
 });

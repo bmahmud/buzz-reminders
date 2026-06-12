@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'PatrickHand_400Regular',
-    fontSize: 16,
+    fontSize: 18,
   },
   labelActive: {
     color: TOKENS.card,

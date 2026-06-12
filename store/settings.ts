@@ -9,6 +9,7 @@ export interface SettingsState {
   notificationsEnabled: boolean;
   defaultAlert: 'sound' | 'vibrate' | 'both' | 'silent';
   snoozeMinutes: number;
+  defaultEarlyReminderMinutes: number | null;
   theme: 'warm';
   skippedCloudAuth: boolean;
   setHasCompletedOnboarding: (value: boolean) => void;
@@ -17,6 +18,7 @@ export interface SettingsState {
   setNotificationsEnabled: (value: boolean) => void;
   setDefaultAlert: (value: SettingsState['defaultAlert']) => void;
   setSnoozeMinutes: (value: number) => void;
+  setDefaultEarlyReminderMinutes: (value: number | null) => void;
   setSkippedCloudAuth: (value: boolean) => void;
 }
 
@@ -29,6 +31,7 @@ export const useSettingsStore = create<SettingsState>()(
       notificationsEnabled: true,
       defaultAlert: 'both',
       snoozeMinutes: 10,
+      defaultEarlyReminderMinutes: null,
       theme: 'warm',
       skippedCloudAuth: false,
       setHasCompletedOnboarding: (value: boolean) =>
@@ -38,6 +41,8 @@ export const useSettingsStore = create<SettingsState>()(
       setNotificationsEnabled: (value: boolean) => set({ notificationsEnabled: value }),
       setDefaultAlert: (value) => set({ defaultAlert: value }),
       setSnoozeMinutes: (value: number) => set({ snoozeMinutes: value }),
+      setDefaultEarlyReminderMinutes: (value: number | null) =>
+        set({ defaultEarlyReminderMinutes: value }),
       setSkippedCloudAuth: (value: boolean) => set({ skippedCloudAuth: value }),
     }),
     {

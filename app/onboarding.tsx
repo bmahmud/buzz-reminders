@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BuzzButton } from '../components/ui/BuzzButton';
 import { BuzzText } from '../components/ui/BuzzText';
 import { TOKENS } from '../constants/colors';
 import { STRINGS } from '../constants/strings';
@@ -45,12 +46,7 @@ export default function OnboardingScreen() {
         </BuzzText>
       </View>
       <View style={styles.actions}>
-        <Pressable
-          onPress={onEnable}
-          style={({ pressed }) => [styles.primary, pressed && styles.pressed]}
-        >
-          <BuzzText style={styles.primaryText}>{STRINGS.onboarding.enable}</BuzzText>
-        </Pressable>
+        <BuzzButton label={STRINGS.onboarding.enable} onPress={onEnable} />
         <Pressable onPress={onSkip} style={styles.secondary}>
           <BuzzText muted>{STRINGS.onboarding.skip}</BuzzText>
         </Pressable>
@@ -86,19 +82,6 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: 12,
-  },
-  primary: {
-    backgroundColor: TOKENS.ink,
-    paddingVertical: 16,
-    borderRadius: 999,
-    alignItems: 'center',
-  },
-  pressed: {
-    opacity: 0.9,
-  },
-  primaryText: {
-    color: TOKENS.card,
-    fontSize: 18,
   },
   secondary: {
     paddingVertical: 12,

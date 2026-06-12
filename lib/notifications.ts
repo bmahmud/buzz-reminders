@@ -116,12 +116,15 @@ export function cancelWebTimer(id: string): void {
   postToServiceWorker({ type: 'CANCEL_REMINDER', id });
 }
 
-async function scheduleWebReminder(reminder: Reminder): Promise<string[]> {
-  const ids: string[] = [];
-  const due = new Date(reminder.dueAt).getTime();
-  if (due <= Date.now()) return ids;
+async function scheduleWebAt(
+  reminder: Reminder,
+  dueAt: number,
+  body: string,
+  suffix: string
+): Promise<string | undefined> {
+  if (dueAt <= Date.now()) return undefined;
 
-  const id = `web-${reminder.id}-${Date.now()}`;
+  const id = `web-${reminder.id}-${suffix}-${Date.now()}`;
 
   if (typeof navigator !== 'undefined' && navigator.serviceWorker?.controller) {
     postToServiceWorker({
@@ -129,27 +132,47 @@ async function scheduleWebReminder(reminder: Reminder): Promise<string[]> {
       id,
       reminderId: reminder.id,
       title: reminder.title,
-      dueAt: due,
+      body,
+      dueAt,
     });
-    ids.push(id);
-    return ids;
+    return id;
   }
 
-  const delay = Math.max(0, due - Date.now());
+  const delay = Math.max(0, dueAt - Date.now());
   const t = setTimeout(() => {
     webTimers.delete(id);
     try {
       const GN = (globalThis as unknown as { Notification?: typeof Notification }).Notification;
       if (GN && GN.permission === 'granted') {
         // eslint-disable-next-line no-new
-        new GN(reminder.title, { body: 'Reminder due', tag: reminder.id });
+        new GN(reminder.title, { body, tag: `${reminder.id}-${suffix}` });
       }
     } catch (e) {
       logger.warn('Web notification failed', e);
     }
   }, delay);
   webTimers.set(id, t);
-  ids.push(id);
+  return id;
+}
+
+async function scheduleWebReminder(reminder: Reminder): Promise<string[]> {
+  const ids: string[] = [];
+  const due = new Date(reminder.dueAt).getTime();
+
+  const earlyMinutes = reminder.earlyReminderMinutes;
+  if (earlyMinutes != null && earlyMinutes > 0) {
+    const earlyDue = due - earlyMinutes * 60 * 1000;
+    const earlyId = await scheduleWebAt(
+      reminder,
+      earlyDue,
+      `Coming up in ${earlyMinutes} min`,
+      'early'
+    );
+    if (earlyId) ids.push(earlyId);
+  }
+
+  const mainId = await scheduleWebAt(reminder, due, 'Reminder due', 'due');
+  if (mainId) ids.push(mainId);
   return ids;
 }
 
@@ -175,6 +198,31 @@ export async function scheduleNotificationsForReminder(
   const { shouldPlaySound, shouldVibrate } = alertModeToSoundVibrate(reminder.alertMode);
 
   const notificationIds: string[] = [];
+
+  const earlyMinutes = reminder.earlyReminderMinutes;
+  if (earlyMinutes != null && earlyMinutes > 0) {
+    const earlyDate = new Date(dueDate.getTime() - earlyMinutes * 60 * 1000);
+    if (earlyDate.getTime() > Date.now()) {
+      const earlyId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: reminder.title,
+          body: `Coming up in ${earlyMinutes} min`,
+          data: {
+            reminderId: reminder.id,
+            kind: 'early' as const,
+            alertMode: reminder.alertMode,
+          },
+          sound: shouldPlaySound ? 'default' : undefined,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: earlyDate,
+          channelId: ANDROID_CHANNEL_ID,
+        },
+      });
+      notificationIds.push(earlyId);
+    }
+  }
 
   if (dueDate.getTime() > Date.now()) {
     const mainId = await Notifications.scheduleNotificationAsync({

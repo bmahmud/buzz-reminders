@@ -56,7 +56,7 @@ function scheduleItem(item) {
     void dbDelete(item.id);
     if (self.registration && Notification.permission === 'granted') {
       self.registration.showNotification(item.title, {
-        body: 'Reminder due',
+        body: item.body || 'Reminder due',
         tag: item.reminderId,
         data: { reminderId: item.reminderId },
       });
@@ -94,6 +94,7 @@ self.addEventListener('message', (event) => {
       id: data.id,
       reminderId: data.reminderId,
       title: data.title,
+      body: data.body,
       dueAt: data.dueAt,
     };
     void dbPut(item).then(() => scheduleItem(item));

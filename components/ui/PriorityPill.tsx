@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'PatrickHand_400Regular',
-    fontSize: 14,
+    fontSize: 16,
     color: '#2c2a26',
   },
 });

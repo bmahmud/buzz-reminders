@@ -9,11 +9,11 @@ export interface BuzzTextProps extends TextProps {
 }
 
 const variantStyles: Record<BuzzTextVariant, { fontSize: number; lineHeight: number }> = {
-  title: { fontSize: 28, lineHeight: 34 },
-  subtitle: { fontSize: 18, lineHeight: 24 },
-  body: { fontSize: 16, lineHeight: 22 },
-  caption: { fontSize: 13, lineHeight: 18 },
-  section: { fontSize: 15, lineHeight: 20 },
+  title: { fontSize: 32, lineHeight: 38 },
+  subtitle: { fontSize: 22, lineHeight: 28 },
+  body: { fontSize: 18, lineHeight: 24 },
+  caption: { fontSize: 15, lineHeight: 20 },
+  section: { fontSize: 17, lineHeight: 22 },
 };
 
 export function BuzzText({

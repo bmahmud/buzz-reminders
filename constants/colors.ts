@@ -7,6 +7,7 @@ export const TOKENS = {
   line: '#d9d2c4',
   accentCoral: '#ff7a4d',
   accentGreen: '#1b4332',
+  hi: '#e8543a',
   cardRadius: 24,
   success: '#1b4332',
   snooze: '#f0a73a',

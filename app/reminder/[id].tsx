@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { ComponentProps } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PriorityBadge } from '../../components/PriorityBadge';
-import { THEME } from '../../constants/colors';
+import { BuzzButton } from '../../components/ui/BuzzButton';
+import { BuzzText } from '../../components/ui/BuzzText';
+import { PriorityPill } from '../../components/ui/PriorityPill';
+import { TOKENS } from '../../constants/colors';
+import { formatEarlyReminder } from '../../constants/earlyReminder';
 import { REMINDER_TYPE_META } from '../../constants/reminderTypes';
 import { STRINGS } from '../../constants/strings';
 import { useReminderStore } from '../../store/reminders';
@@ -22,7 +25,7 @@ export default function ReminderDetailScreen() {
   if (!reminder) {
     return (
       <View style={[styles.center, { paddingBottom: insets.bottom }]}>
-        <Text style={styles.muted}>Reminder not found.</Text>
+        <BuzzText muted>Reminder not found.</BuzzText>
       </View>
     );
   }
@@ -32,21 +35,17 @@ export default function ReminderDetailScreen() {
   const reminderId = reminder.id;
 
   function onDelete() {
-    Alert.alert(
-      'Delete reminder?',
-      'This cannot be undone.',
-      [
-        { text: STRINGS.actions.cancel, style: 'cancel' },
-        {
-          text: STRINGS.actions.delete,
-          style: 'destructive',
-          onPress: () => {
-            void deleteReminder(reminderId);
-            router.back();
-          },
+    Alert.alert('Delete reminder?', 'This cannot be undone.', [
+      { text: STRINGS.actions.cancel, style: 'cancel' },
+      {
+        text: STRINGS.actions.delete,
+        style: 'destructive',
+        onPress: () => {
+          void deleteReminder(reminderId);
+          router.back();
         },
-      ]
-    );
+      },
+    ]);
   }
 
   return (
@@ -56,47 +55,60 @@ export default function ReminderDetailScreen() {
           <Ionicons
             name={meta.icon as ComponentProps<typeof Ionicons>['name']}
             size={28}
-            color={THEME.accent}
+            color={TOKENS.ink}
           />
-          <Text style={styles.type}>{meta.label}</Text>
+          <BuzzText muted>{meta.label}</BuzzText>
         </View>
-        <Text style={styles.title}>{reminder.title}</Text>
-        <PriorityBadge priority={reminder.priority} />
+        <BuzzText variant="title">{reminder.title}</BuzzText>
+        <PriorityPill priority={reminder.priority} />
       </View>
 
       <View style={styles.block}>
-        <Text style={styles.label}>{STRINGS.reminder.dateTimeLabel}</Text>
-        <Text style={styles.value}>
+        <BuzzText variant="section" muted>
+          {STRINGS.reminder.dateTimeLabel}
+        </BuzzText>
+        <BuzzText variant="body">
           {due.toLocaleString(undefined, {
             weekday: 'long',
             dateStyle: 'medium',
             timeStyle: 'short',
           })}
-        </Text>
+        </BuzzText>
+      </View>
+
+      <View style={styles.block}>
+        <BuzzText variant="section" muted>
+          Early reminder
+        </BuzzText>
+        <BuzzText variant="body">
+          {formatEarlyReminder(reminder.earlyReminderMinutes)}
+        </BuzzText>
       </View>
 
       {reminder.description ? (
         <View style={styles.block}>
-          <Text style={styles.label}>{STRINGS.reminder.notesLabel}</Text>
-          <Text style={styles.value}>{reminder.description}</Text>
+          <BuzzText variant="section" muted>
+            {STRINGS.reminder.notesLabel}
+          </BuzzText>
+          <BuzzText variant="body">{reminder.description}</BuzzText>
         </View>
       ) : null}
 
       <View style={styles.actions}>
-        <Pressable
+        <BuzzButton
+          label={STRINGS.actions.complete}
           onPress={() => void complete(reminder.id).then(() => router.back())}
-          style={({ pressed }) => [styles.primary, pressed && styles.pressed]}
-        >
-          <Ionicons name="checkmark-done" size={20} color="#fff" />
-          <Text style={styles.primaryText}>{STRINGS.actions.complete}</Text>
-        </Pressable>
-        <Pressable
+        />
+        <BuzzButton
+          label="Edit"
+          variant="secondary"
+          onPress={() => router.push(`/reminder/edit/${reminder.id}`)}
+        />
+        <BuzzButton
+          label={STRINGS.actions.delete}
+          variant="danger"
           onPress={onDelete}
-          style={({ pressed }) => [styles.danger, pressed && styles.pressed]}
-        >
-          <Ionicons name="trash-outline" size={20} color="#ff6b6b" />
-          <Text style={styles.dangerText}>{STRINGS.actions.delete}</Text>
-        </Pressable>
+        />
       </View>
     </View>
   );
@@ -105,18 +117,16 @@ export default function ReminderDetailScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 16,
     gap: 16,
+    backgroundColor: TOKENS.paper,
   },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  muted: {
-    color: THEME.textSecondary,
-    fontSize: 15,
+    backgroundColor: TOKENS.paper,
   },
   header: {
     gap: 10,
@@ -126,63 +136,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  type: {
-    color: THEME.textSecondary,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  title: {
-    color: THEME.textPrimary,
-    fontSize: 24,
-    fontWeight: '700',
-  },
   block: {
     gap: 6,
-  },
-  label: {
-    color: THEME.textSecondary,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  value: {
-    color: THEME.textPrimary,
-    fontSize: 16,
-    lineHeight: 22,
   },
   actions: {
     gap: 12,
     marginTop: 8,
-  },
-  primary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: THEME.accent,
-    paddingVertical: 14,
-    borderRadius: 14,
-  },
-  danger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: '#ff6b6b55',
-    paddingVertical: 14,
-    borderRadius: 14,
-  },
-  pressed: {
-    opacity: 0.9,
-  },
-  primaryText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  dangerText: {
-    color: '#ff6b6b',
-    fontSize: 16,
-    fontWeight: '700',
   },
 });

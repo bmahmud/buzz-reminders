@@ -23,6 +23,7 @@ create table if not exists reminders (
   completed_at timestamptz,
   streak_count int,
   weekly_history boolean[],
+  early_reminder_minutes int,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -53,3 +54,6 @@ create policy "settings_insert_own" on user_settings for insert with check (auth
 create policy "settings_update_own" on user_settings for update using (auth.uid() = user_id);
 
 create index if not exists reminders_user_updated_idx on reminders (user_id, updated_at desc);
+
+-- If tables already exist, run:
+-- alter table reminders add column if not exists early_reminder_minutes int;

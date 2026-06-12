@@ -87,6 +87,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   title: {
-    fontSize: 17,
+    fontSize: 19,
   },
 });
